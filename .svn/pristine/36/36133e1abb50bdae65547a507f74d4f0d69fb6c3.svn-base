@@ -1,0 +1,155 @@
+package falstad;
+
+import java.awt.*;
+
+public class GraphicsWrapper extends MazePanel{
+	
+	//Default serialVersionUID for serialization, not of consequence right now
+	private static final long serialVersionUID = 1L;
+	
+	//Declare an field for wgc to consistently work with a graphics object
+	Graphics wgc;
+	
+	public GraphicsWrapper() {
+		super() ;
+	}
+
+	/**
+	 * Sets the internal graphics option to the bufferGraphics of a GraphicsWrapper object passed by Maze
+	 * 
+	 * @param input
+	 */
+	public void graphics(GraphicsWrapper input){
+		wgc = input.getBufferGraphics();
+	}
+	
+	/**
+	 * Get method for the currently used graphics of this instance of GraphicsWrapper
+	 * 
+	 * @return
+	 */
+	public Graphics getNewGraph(){
+		return this.wgc;
+	}
+	
+	
+	////////////////////////////////////////// wrapped color methods ///////////////////////////////////////////
+	
+	/**
+	 * Encapsulation of Graphics' setcolor method that accepts strings for a specified set of colors as inputs and
+	 * sets that color to the graphics object
+	 * 
+	 * @param inString
+	 */
+	public void setColorString(String inString){
+		if(inString.equalsIgnoreCase("darkgray")){
+			wgc.setColor(Color.darkGray);
+		}
+		else if(inString.equalsIgnoreCase("black")){
+			wgc.setColor(Color.black);
+		}
+		else if(inString.equalsIgnoreCase("white")){
+			wgc.setColor(Color.white);
+		}
+		else if(inString.equalsIgnoreCase("gray")){
+			wgc.setColor(Color.gray);
+		}
+		else if(inString.equalsIgnoreCase("red")){
+			wgc.setColor(Color.red);
+		}
+		else if(inString.equalsIgnoreCase("yellow")){
+			wgc.setColor(Color.yellow);
+		}
+	}
+	
+	/**
+	 * Sets color accepting a color object as a parameter, used for testing
+	 * 
+	 * 
+	 * @param c
+	 */
+	public void setColorColor(Color c){
+		wgc.setColor(c);
+	}
+	
+	/**
+	 * Sets color using an int array of RGB values for a parameter
+	 * 
+	 * @param c
+	 */
+	public void setColorInt(int[] c){
+		Color tempCol = new Color(c[0], c[1], c[2]);
+		wgc.setColor(tempCol);
+	}
+	
+	/**
+	 * Encapsulates the getRGB method for color, used in Seg
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public int getRGB(int[] c){
+		Color tempCol = new Color(c[0], c[1], c[2]);
+		return tempCol.getRGB();
+	}
+	
+	/**
+	 * Encapsulates the getRGB method to be accessed in a static way, used in MazeFileReader
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public static int getStatRGB(int[] c){
+		Color tempCol = new Color(c[0], c[1], c[2]);
+		return tempCol.getRGB();
+	}
+	
+	////////////////////////////////// wrapped drawing methods ///////////////////////////////////////////////
+	
+	/**
+	 * Encapsulates the fill rectangle method for graphics, accepting the same parameters as the graphics method
+	 * 
+	 * @param a
+	 * @param b
+	 * @param wid
+	 * @param height
+	 */
+	public void wrapFillRect(int a, int b, int wid, int height){
+		wgc.fillRect(a, b, wid, height);
+	}
+	
+	/**
+	 * Encapsulates the draw line method for graphics, accepting the same parameters as the method in graphics
+	 * 
+	 * @param nx1
+	 * @param ny1
+	 * @param nx2
+	 * @param ny2
+	 */
+	public void wrapDrawLine(int nx1, int ny1, int nx2, int ny2){
+		wgc.drawLine(nx1, ny1, nx2, ny2);
+	}
+	
+	/**
+	 * Encapsulates the fill oval method in graphics, accepting the appropriate parameters
+	 * 
+	 * @param nx1
+	 * @param ny1
+	 * @param nx2
+	 * @param ny2
+	 */
+	public void wrapFillOval(int nx1, int ny1, int nx2, int ny2){
+		wgc.fillOval(nx1, ny1, nx2, ny2);
+	}
+	
+	/**
+	 * Encapsulates the fill polygon method in graphics, accepting two integer arrays and an integer for parameters
+	 * 
+	 * @param a
+	 * @param b
+	 * @param c
+	 */
+	public void wrapFillPolygon(int[] a, int[] b, int c){
+		wgc.fillPolygon(a, b, c);
+	}
+}

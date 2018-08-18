@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <item
+        android:id="@+id/action_back"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/back_lower"/>
+    
+    <item
+        android:id="@+id/action_map"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/show_map"/>
+    
+    <item
+        android:id="@+id/action_walls"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/show_walls"/>
+    
+    <item
+        android:id="@+id/action_solution"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/show_solution"/>
+
+</menu>

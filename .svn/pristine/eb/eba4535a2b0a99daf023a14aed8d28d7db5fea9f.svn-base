@@ -1,0 +1,58 @@
+package falstad;
+
+/**
+ * Extends Maze, gets rid of unnecessary GUI references, overrides build and newMaze to create a deterministic
+ * testing object for MazeBuilderTest and MazeBuilderEllerTest.
+ * 
+ * @author William
+ *
+ */
+public class MazeStub extends Maze {
+	public MazeStub()
+	{
+		super();
+	}
+	
+	public MazeStub(int method)
+	{
+		super(method);
+	}
+	
+	public void build(int skill) {
+		// select generation method
+		switch(method){
+		case 2 : mazebuilder = new MazeBuilderEller(true); //generate with Eller's algorithm
+		break;
+		case 1 : mazebuilder = new MazeBuilderPrim(true); // generate with Prim's algorithm
+		break ;
+		case 0: // generate with Falstad's original algorithm (0 and default), note the missing break statement
+		default : mazebuilder = new MazeBuilder(true); 
+		break ;
+		}
+		// adjust settings and launch generation in a separate thread
+		mazew = Constants.SKILL_X[skill];
+		mazeh = Constants.SKILL_Y[skill];
+		mazebuilder.build(this, mazew, mazeh, Constants.SKILL_ROOMS[skill], Constants.SKILL_PARTCT[skill]);
+		try {
+			mazebuilder.buildThread.join();
+		} catch (InterruptedException e) {
+			System.out.println("Oops, you got interrupted!");
+		}
+		//mazebuilder performs in a separate thread and calls back by calling newMaze() to return newly generated maze
+	}
+	
+	public void newMaze(BSPNode root, Cells c, Distance dists, int startx, int starty) {
+		if (Cells.deepdebugWall)
+		{   // for debugging: dump the sequence of all deleted walls to a log file
+			// This reveals how the maze was generated
+			c.saveLogFile(Cells.deepedebugWallFileName);
+		}
+		// adjust internal state of maze model
+		mazecells = c ;
+		mazedists = dists;
+		seencells = new Cells(mazew+1,mazeh+1) ;
+		rootnode = root ;
+		walkStep = 0;
+		// set the current state for the state-dependent behavior
+	}
+}

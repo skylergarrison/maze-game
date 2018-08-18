@@ -1,0 +1,298 @@
+package falstad;
+
+import java.util.Random;
+
+import android.util.Log;
+import falstad.Robot.Direction;
+import falstad.Robot.Turn;
+
+public class CuriousMouse implements RobotDriver {
+	
+	//initialize fields
+	private int pathLength = 0;
+	Robot baseRob;
+	Distance internalDists;
+	private int width;
+	private int height;
+	Cells visitCells;
+	boolean canGoRight = false;
+	boolean canGoLeft = false;
+	boolean canGoForw = false;
+	boolean canGoBack = false;
+	
+	//booleans for dividing probability properly later
+	boolean visitedRight = false;
+	boolean visitedLeft = false;
+	boolean visitedForw = false;
+	boolean visitedBack = false;
+	
+	//boolean to control the loop at the end for actual movement so it will break the loop when an operation
+	//is performed.
+	boolean operatedBool = false;
+	//create a random object to use later in the probability
+	Random ran = new Random();
+	
+	@Override
+	public void setRobot(Robot r) {
+		
+		//sets the essential robot
+		this.baseRob = r;
+		
+	}
+
+	/**
+	 * Sets the height and width of the puzzle according to parameters. Also creates a cells object to keep track of
+	 * if a chosen direction has a previously explored cell in it (for drive2exit).
+	 * 
+	 * @param width
+	 * @param height
+	 */
+	@Override
+	public void setDimensions(int width, int height) {
+		//provides the info about the maze dimensions
+			this.width = width;
+			this.height = height;
+			visitCells = new Cells(this.width, this.height);
+		
+	}
+
+	@Override
+	public void setDistance(Distance distance) {
+		//sets the distance object passed to the driver's internal distance field
+		this.internalDists = distance;
+		
+	}
+
+	/**
+	 * Drives around the maze in random directions with a preference for unexplored cells.
+	 * It stops when it exits the maze given the robot's energy supply lasts long enough.
+	 * Otherwise it stops when the robot runs out of energy.
+	 *  
+	 * @return true if driver successfully reaches the exit, false otherwise
+	 * @throws exception if robot stopped due to some problem, e.g. lack of energy
+	 */
+	@Override
+	public boolean drive2Exit() throws Exception {
+	
+		Log.v("CuriousMouse", "Battery: " + baseRob.getBatteryLevel());
+		//clear all booleans
+		operatedBool = false;
+		
+		canGoRight = false;
+		canGoLeft = false;
+		canGoForw = false;
+		canGoBack = false;
+		
+		visitedRight = false;
+		visitedLeft = false;
+		visitedForw = false;
+		visitedBack = false;
+		
+		//set this current cell as visited, so as to limit the probability it is visited again in the future
+		visitCells.setCellAsVisited(baseRob.getCurrentPosition()[0], baseRob.getCurrentPosition()[1]);
+		//get the current direction of the robot
+		int[] switchInt = baseRob.getCurrentDirection();
+		
+		
+		//go through the structure that transfers robot-relative directions into map-relative directions for
+		//checking if there are walls, and if there are not, if that cell has been visited before.
+		if(switchInt[0]==-1){//facing left
+			if(baseRob.distanceToObstacle(Direction.RIGHT)>0){
+				canGoRight = true;
+				if(this.visitedCheck(0, 1)){//up
+					visitedRight = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.LEFT)>0){
+				canGoLeft = true;
+				if(this.visitedCheck(0, -1)){//down
+					visitedLeft = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.FORWARD)>0){
+				canGoForw = true;
+				if(this.visitedCheck(-1, 0)){//left
+					visitedForw = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.BACKWARD)>0){
+				canGoBack = true;
+				if(this.visitedCheck(1, 0)){//right
+					visitedBack = true;
+				}
+			}
+		}else if(switchInt[0]==1){//facing right
+			if(baseRob.distanceToObstacle(Direction.LEFT)>0){
+				canGoLeft = true;
+				if(this.visitedCheck(0, 1)){//up
+					visitedLeft = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.RIGHT)>0){
+				canGoRight = true;
+				if(this.visitedCheck(0, -1)){//down
+					visitedRight = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.BACKWARD)>0){
+				canGoBack = true;
+				if(this.visitedCheck(-1, 0)){//left
+					visitedBack = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.FORWARD)>0){
+				canGoForw = true;
+				if(this.visitedCheck(1, 0)){//right
+					visitedForw = true;
+				}
+			}
+		}else if(switchInt[1]==-1){//facing down
+			if(baseRob.distanceToObstacle(Direction.BACKWARD)>0){
+				canGoBack = true;
+				if(this.visitedCheck(0, 1)){//up
+					visitedBack = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.FORWARD)>0){
+				canGoForw = true;
+				if(this.visitedCheck(0, -1)){//down
+					visitedForw = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.RIGHT)>0){
+				canGoRight = true;
+				if(this.visitedCheck(-1, 0)){//left
+					visitedRight = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.LEFT)>0){
+				canGoLeft = true;
+				if(this.visitedCheck(1, 0)){//right
+					visitedLeft = true;
+				}
+			}
+		}else if(switchInt[1]==1){//facing up
+			if(baseRob.distanceToObstacle(Direction.FORWARD)>0){
+				canGoForw = true;
+				if(this.visitedCheck(0, 1)){//up
+					visitedForw = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.BACKWARD)>0){
+				canGoBack = true;
+				if(this.visitedCheck(0, -1)){//down
+					visitedBack = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.LEFT)>0){
+				canGoLeft = true;
+				if(this.visitedCheck(-1, 0)){//left
+					visitedLeft = true;
+				}
+			}if(baseRob.distanceToObstacle(Direction.RIGHT)>0){
+				canGoRight = true;
+				if(this.visitedCheck(1, 0)){//right
+					visitedRight = true;
+				}
+			}
+		}
+		
+		//loop through while no movement has been performed. each time, a new random number is generated.
+		//
+		//if the cell in that direction has been visited before, there is only one number that can allow a movement
+		//in that direction. if the cell has not been visited and it is possible to go in that direction, there is a
+		//large possibility of the direction being chosen. If no appropriate number is chosen for viable
+		//directions, it will choose a new number, as the operated state is still false.
+		while(operatedBool==false){
+			int randInt = ran.nextInt(15) + 1;
+			
+			if(canGoRight){
+				if(visitedRight){
+					if(randInt==2){
+						baseRob.rotate(Turn.RIGHT);
+						baseRob.move(1);
+						operatedBool = true;
+					}
+				}else if((randInt>=1)&&(randInt<=4)){
+					baseRob.rotate(Turn.RIGHT);
+					baseRob.move(1);
+					operatedBool = true;
+				}
+			}if(canGoLeft){
+				if(visitedLeft){
+					if(randInt==6){
+						baseRob.rotate(Turn.LEFT);
+						baseRob.move(1);
+						operatedBool = true;
+					}
+				}else if((randInt>=5)&&(randInt<=8)){
+					baseRob.rotate(Turn.LEFT);
+					baseRob.move(1);
+					operatedBool = true;
+				}
+			}if(canGoForw){
+				if(visitedForw){
+					if(randInt==10){
+						baseRob.move(1);
+						operatedBool = true;
+					}
+				}else if((randInt>=9)&&(randInt<=12)){
+					baseRob.move(1);
+					operatedBool = true;
+				}
+			}if(canGoBack){
+				if(visitedBack){
+					if(randInt==14){
+						baseRob.rotate(Turn.AROUND);
+						baseRob.move(1);
+						operatedBool = true;
+					}
+				}else if((randInt>=13)&&(randInt<=16)){
+					baseRob.rotate(Turn.AROUND);
+					baseRob.move(1);
+					operatedBool = true;
+				}
+			}
+		}
+
+		//return true if the robot is at goal, false if not
+		return baseRob.isAtGoal();
+	}
+
+	@Override
+	public float getEnergyConsumption() {
+		//based on the standard energy start for a robot, returns the energy used
+		int returnBattery = 2500 - (int)baseRob.getBatteryLevel();
+		return returnBattery ;
+	}
+
+	@Override
+	public int getPathLength() {
+		//returns the pathlength to the user
+		return pathLength;
+	}
+
+	@Override
+	public void incrementPathLength() {
+		//adds 1 to the pathlength
+		pathLength = pathLength + 1;
+		
+	}
+
+	@Override
+	public void clearPathLength() {
+
+		//sets the pathlength to 0
+		pathLength = 0;
+	}
+	
+	/**
+	 * Checks if the cell relative to the current position in a direction indicated by -1, 0, 1 modifiers for x
+	 * and y is visited.
+	 * 
+	 * @param xMod
+	 * @param yMod
+	 * @return false if the direction has not been explored. true if it has been explored.
+	 * @throws Exception
+	 */
+	private boolean visitedCheck(int xMod, int yMod) throws Exception{
+		
+		boolean returnBool = true;
+		
+		if(visitCells.isFirstVisit(baseRob.getCurrentPosition()[0] + xMod, baseRob.getCurrentPosition()[1] + yMod)){
+			returnBool = false;
+		}
+		
+		return returnBool;
+	}
+
+}

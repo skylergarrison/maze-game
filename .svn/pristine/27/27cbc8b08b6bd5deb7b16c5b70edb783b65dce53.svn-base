@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AMazeByWilliamGarrison</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="donkey_string">Donkey!</string>
+    <string name="gotee_string">gottee</string>
+    <string name="start_string">START</string>
+    
+    <string-array name="gentype_array">
+        <item>Backtracking</item>
+        <item>Prims</item>
+        <item>Ellers</item>
+    </string-array>
+    
+     <string-array name="solvtype_array">
+        <item>Manual</item>
+        <item>Wizard</item>
+        <item>WallFollower</item>
+        <item>CuriousMouse</item>
+    </string-array>
+    
+    <string name="difficulty_string">Select Difficulty:</string>
+    <string name="generation_string">Select Maze Generation Algorithm:</string>
+    <string name="fileselect_string">Load from file with these settings?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="generate">GENERATE</string>
+    <string name="play">PLAY</string>
+    <string name="generating_plaintext">Generating!</string>
+    <string name="mazesolver">Select maze solver:</string>
+    <string name="show">Show:</string>
+    <string name="map">Map</string>
+    <string name="explored_walls">Explored Walls</string>
+    <string name="solution">Solution</string>
+    <string name="back">BACK</string>
+    <string name="remaining_energy">Remaining energy:</string>
+    <string name="show_map">Show/Hide Map</string>
+    <string name="show_walls">Show/Hide Explored Walls</string>
+    <string name="show_solution">Show/Hide Solution</string>
+    <string name="save">SAVE</string>
+    <string name="temp_advance">TEMP ADVANCE</string>
+    <string name="shortcut">SHORTCUT</string>
+    <string name="you_win">YOU WIN!</string>
+    <string name="gen_test">GenTest</string>
+    <string name="decrement">decrement</string>
+
+</resources>

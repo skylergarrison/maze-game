@@ -1,0 +1,320 @@
+package falstad;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+
+public class MazeView extends DefaultViewer {
+
+	Maze maze ; // need to know the maze model to check the state 
+	// and to provide progress information in the generating state
+	
+	public MazeView(Maze m) {
+		super() ;
+		maze = m;
+		
+	}
+	
+	public void redraw(GraphicsWrapper mp, int state, int px, int py, int view_dx,
+			int view_dy, int walk_step, int view_offset, RangeSet rset, int ang) {
+		
+		//set graphics object to modify
+		mp.graphics(mp);
+		//get graphics for the screens to operate on
+		Graphics gc = mp.getNewGraph();
+		
+		//dbg("redraw") ;
+		switch (state) {
+		case Constants.STATE_TITLE:
+			redrawTitle(gc);
+			break;
+		case Constants.STATE_GENERATING:
+			redrawGenerating(gc);
+			break;
+		case Constants.STATE_PLAY:
+			// skip this one
+			break;
+		case Constants.STATE_FINISH:
+			redrawFinish(gc);
+			break;
+		}
+	}
+	
+	/**
+	 * Helper method for redraw to draw the title screen, screen is hardcoded. Other title screens for options
+	 * are also hardcoded, and which should be shown at the time is read from the maze object
+	 * @param  gc graphics is the off screen image
+	 */
+	void redrawTitle(Graphics gc) {
+		
+		//Title screen, main screen. Shows which settings are chosen right now, and how to get to each options menu
+		if(maze.titleState.equalsIgnoreCase("title")){
+			gc.setColor(Color.white);
+			gc.fillRect(0, 0, Constants.VIEW_WIDTH, Constants.VIEW_HEIGHT);
+			gc.setFont(largeBannerFont);
+			FontMetrics fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			centerString(gc, fm, "MAZE", 50);
+			gc.setColor(Color.blue);
+			gc.setFont(smallerBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "by Paul Falstad", 60);
+			centerString(gc, fm, "www.falstad.com", 70);
+			
+			//Directions to the solver menu
+			gc.setColor(Color.black);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'z' to select a Solver.", 120);
+			
+			gc.setFont(smallBannerFont);
+			fm = gc.getFontMetrics();
+			
+			//Shows which solver is currently selected
+			if(maze.runtype!=null){
+				gc.setFont(smallBannerFont);
+				fm = gc.getFontMetrics();
+				gc.setColor(Color.red);
+				if(maze.runtype.equalsIgnoreCase("wizard")){
+					centerString(gc, fm, "Solver: Wizard", 140);
+				}else if(maze.runtype.equalsIgnoreCase("manual")){
+					centerString(gc, fm, "Solver: ManualDriver", 140);
+				}else if(maze.runtype.equalsIgnoreCase("follow")){
+					centerString(gc, fm, "Solver: WallFollower", 140);
+				}else if(maze.runtype.equalsIgnoreCase("crazymouse")){
+					centerString(gc, fm, "Solver: CuriousMouse", 140);
+				}
+			}
+			
+			//Directions to the maze generation algorithm options menu
+			gc.setColor(Color.black);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'x' to select an algorithm.", 180);
+			
+			//Shows which generation algorithm is currently chosen
+			gc.setFont(smallBannerFont);
+			fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			if(maze.method==0){
+				centerString(gc, fm, "Generator: DFS", 200);
+			}else if(maze.method==1){
+				centerString(gc, fm, "Generator: Prim", 200);
+			}else if(maze.method==2){
+				centerString(gc, fm, "Generator: Eller", 200);
+			}
+			
+			//Directions to the difficulty options menu
+			gc.setColor(Color.black);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'v' to select a difficulty.", 240);
+			
+			//Displays the current difficulty
+			gc.setFont(smallBannerFont);
+			fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			centerString(gc, fm, ("Difficulty: " + maze.difftype), 260);
+			
+			//Directions to start.
+			gc.setColor(Color.blue);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'Enter' to start.", 300);
+			
+			//Version number
+			gc.setColor(Color.black);	
+			centerString(gc, fm, "v4.0", 350);
+		}else if(maze.titleState.equalsIgnoreCase("solver")){//solver menu
+			gc.setColor(Color.white);
+			gc.fillRect(0, 0, Constants.VIEW_WIDTH, Constants.VIEW_HEIGHT);
+			gc.setFont(largeBannerFont);
+			FontMetrics fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			centerString(gc, fm, "Solver Options", 50);
+			
+			gc.setColor(Color.black);
+			gc.setFont(smallBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'm' for Manual.", 100);
+			
+			centerString(gc, fm, "Press 'w' for Wizard.", 150);
+			
+			centerString(gc, fm, "Press 'f' for WallFollower.", 200);
+			
+			centerString(gc, fm, "Press 'c' for CuriousMouse.", 250);
+			
+			if(maze.runtype!=null){
+				gc.setFont(smallBannerFont);
+				fm = gc.getFontMetrics();
+				gc.setColor(Color.red);
+				if(maze.runtype.equalsIgnoreCase("wizard")){
+					centerString(gc, fm, "Solver: Wizard", 270);
+				}else if(maze.runtype.equalsIgnoreCase("manual")){
+					centerString(gc, fm, "Solver: ManualDriver", 270);
+				}else if(maze.runtype.equalsIgnoreCase("follow")){
+					centerString(gc, fm, "Solver: WallFollower", 270);
+				}else if(maze.runtype.equalsIgnoreCase("crazymouse")){
+					centerString(gc, fm, "Solver: CuriousMouse", 270);
+				}
+			}
+			
+			gc.setColor(Color.blue);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'Backspace' for menu.", 300);
+			
+			gc.setColor(Color.black);	
+			centerString(gc, fm, "v4.0", 350);
+		}else if(maze.titleState.equalsIgnoreCase("generate")){//maze generating algorithm menu
+			gc.setColor(Color.white);
+			gc.fillRect(0, 0, Constants.VIEW_WIDTH, Constants.VIEW_HEIGHT);
+			gc.setFont(largeBannerFont);
+			FontMetrics fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			centerString(gc, fm, "Generator Options", 50);
+			
+			gc.setColor(Color.black);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'd' to select DFS.", 100);
+			
+			gc.setColor(Color.black);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'b' to select Prim.", 150);
+			
+			gc.setColor(Color.black);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'e' to select Eller.", 200);
+			
+			gc.setFont(smallBannerFont);
+			fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			if(maze.method==0){
+				centerString(gc, fm, "Generator: DFS", 260);
+			}else if(maze.method==1){
+				centerString(gc, fm, "Generator: Prim", 260);
+			}else if(maze.method==2){
+				centerString(gc, fm, "Generator: Eller", 260);
+			}
+			
+			gc.setColor(Color.blue);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'Backspace' for menu.", 300);
+			
+			gc.setColor(Color.black);	
+			centerString(gc, fm, "v4.0", 350);
+		}else if(maze.titleState.equalsIgnoreCase("difficulty")){//difficulty menu
+			gc.setColor(Color.white);
+			gc.fillRect(0, 0, Constants.VIEW_WIDTH, Constants.VIEW_HEIGHT);
+			gc.setFont(largeBannerFont);
+			FontMetrics fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			centerString(gc, fm, "Difficulty Options", 50);
+			
+			gc.setColor(Color.black);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "For Easy to Hard:", 120);
+			centerString(gc, fm, "Press '0-9'", 140);
+			
+			centerString(gc, fm, "For XHard to Impossible:", 190);
+			centerString(gc, fm, "Press 'F1-F6'", 210);
+			
+			gc.setFont(smallBannerFont);
+			fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			centerString(gc, fm, ("Difficulty: " + maze.difftype), 250);
+			
+			gc.setColor(Color.blue);
+			gc.setFont(medBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Press 'Backspace' for menu.", 300);
+			
+			gc.setColor(Color.black);	
+			centerString(gc, fm, "v4.0", 350);
+		}
+	}
+	
+	/**
+	 * Helper method for redraw to draw final screen, screen is hard coded
+	 * @param gc graphics is the off screen image
+	 */
+	void redrawFinish(Graphics gc) {
+		gc.setColor(Color.blue);
+		gc.fillRect(0, 0, Constants.VIEW_WIDTH, Constants.VIEW_HEIGHT);
+		
+		if(maze.getBatteryUsed()<=2500){
+			gc.setFont(largeBannerFont);
+			FontMetrics fm = gc.getFontMetrics();
+			gc.setColor(Color.yellow);
+			centerString(gc, fm, "You won!", 100);
+			gc.setColor(Color.orange);
+			gc.setFont(smallBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Congratulations!", 160);
+			gc.setColor(Color.white);
+			centerString(gc, fm, "Battery used: " + maze.getBatteryUsed(), 200);
+			gc.setColor(Color.white);
+			centerString(gc, fm, "Steps taken: " + maze.getPathSteps(), 240);
+			gc.setColor(Color.white);
+			centerString(gc, fm, "Hit any key to restart", 300);
+		
+		}
+		else{
+			gc.setFont(largeBannerFont);
+			FontMetrics fm = gc.getFontMetrics();
+			gc.setColor(Color.red);
+			centerString(gc, fm, "YOU LOST", 100);
+			gc.setColor(Color.orange);
+			gc.setFont(smallBannerFont);
+			fm = gc.getFontMetrics();
+			centerString(gc, fm, "Better luck next time!", 160);
+			gc.setColor(Color.white);
+			centerString(gc, fm, "Battery used: " + maze.getBatteryUsed(), 190);
+			gc.setColor(Color.red);
+			centerString(gc, fm, "You ran out of battery.", 220);
+			gc.setColor(Color.white);
+			centerString(gc, fm, "Steps taken: " + maze.getPathSteps(), 250);
+			gc.setColor(Color.white);
+			centerString(gc, fm, "Hit any key to restart", 300);
+		}
+	}
+
+	/**
+	 * Helper method for redraw to draw screen during phase of maze generation, screen is hard coded
+	 * only attribute percentdone is dynamic
+	 * @param gc graphics is the off screen image
+	 */
+	void redrawGenerating(Graphics gc) {
+		gc.setColor(Color.yellow);
+		gc.fillRect(0, 0, Constants.VIEW_WIDTH, Constants.VIEW_HEIGHT);
+		gc.setFont(largeBannerFont);
+		FontMetrics fm = gc.getFontMetrics();
+		gc.setColor(Color.red);
+		centerString(gc, fm, "Building maze", 150);
+		gc.setFont(smallBannerFont);
+		fm = gc.getFontMetrics();
+		gc.setColor(Color.black);
+		centerString(gc, fm, maze.getPercentDone()+"% completed", 200);
+		centerString(gc, fm, "Hit escape to stop", 300);
+	}
+	
+	private void centerString(Graphics g, FontMetrics fm, String str, int ypos) {
+		g.drawString(str, (Constants.VIEW_WIDTH-fm.stringWidth(str))/2, ypos);
+	}
+
+	Font largeBannerFont = new Font("TimesRoman", Font.BOLD, 36);
+	Font medBannerFont = new Font("TimesRoman", Font.BOLD, 24);
+	Font smallBannerFont = new Font("TimesRoman", Font.BOLD, 16);
+	Font smallerBannerFont = new Font("TimesRoman", Font.BOLD, 10);
+	
+	private void dbg(String str) {
+		System.out.println("MazeView:" + str);
+	}
+
+}

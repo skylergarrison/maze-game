@@ -1,0 +1,86 @@
+package ui;
+
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import wsgarrison.ui.R;
+
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class FinishActivity extends ActionBarActivity {
+
+	boolean win;
+	private int path;
+	private int batt;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.finish_activity);
+		
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+		    win = extras.getBoolean("win");
+		    path = extras.getInt("path");
+		    batt = extras.getInt("battery");
+		}
+		
+		TextView textView = (TextView) findViewById(R.id.textView1);
+		TextView textView2 = (TextView) findViewById(R.id.textView2);
+		TextView textView3 = (TextView) findViewById(R.id.textView3);
+		
+		textView2.setText("Path Length: " + path);
+		textView3.setText("Battery: " + batt);
+		
+		if(win==true){
+			textView.setText("YOU WIN!");
+			
+		}else{
+			textView.setText("YOU LOSE!");
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	public void goBack(View view) {
+		Intent intent = new Intent(this, AMazeActivity.class);
+		startActivity(intent);
+	}
+	
+	public void save(View view) {
+		Log.v("Save message", "Filesave Complete! (PLACEHOLDER)");
+		
+		Context context = getApplicationContext();
+		CharSequence text = "Filesave Complete! (PLACEHOLDER)";
+		int duration = Toast.LENGTH_SHORT;
+
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
+	}
+}

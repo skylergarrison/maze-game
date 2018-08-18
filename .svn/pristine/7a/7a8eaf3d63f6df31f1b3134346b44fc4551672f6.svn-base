@@ -1,0 +1,134 @@
+package falstad;
+
+import java.awt.Container;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+/**
+ * Class implements a wrapper for the user input handled by the Maze class. 
+ * It is shared by MazeApplication and MazeApp to talk to the Maze.
+ *
+ * This code is refactored code from Maze.java by Paul Falstad, www.falstad.com, Copyright (C) 1998, all rights reserved
+ * Paul Falstad granted permission to modify and use code for teaching purposes.
+ * Refactored by Peter Kemper
+ */
+public class SimpleKeyListener implements KeyListener {
+
+	Container parent ;
+	Maze maze ;
+	RobotDriver manDriv;
+	
+	SimpleKeyListener(Container parent, Maze maze){
+		this.parent = parent ;
+		this.maze = maze ;
+	}
+	
+	SimpleKeyListener(Container parent, Maze maze, RobotDriver manDriv){
+		this.parent = parent ;
+		this.maze = maze ;
+		this.manDriv = manDriv;
+	}
+	/**
+	 * Translates keyboard input to the corresponding characters for the Maze.keyDown method
+	 */
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		//System.out.println("1: Communicating key: " + arg0.getKeyText(arg0.getKeyCode()) + " with key char: " + arg0.getKeyChar() + " with code: " + arg0.getKeyCode());
+		int key = arg0.getKeyChar() ;
+		int code = arg0.getKeyCode() ;
+
+		//listens for all the input needed by the menus in the MazeApplication title screen
+		if (KeyEvent.CHAR_UNDEFINED == key)
+		{
+			if ((KeyEvent.VK_0 <= code && code <= KeyEvent.VK_9))
+				key = code ;
+			if (KeyEvent.VK_F1 == code)
+				key = maze.F1;
+			if (KeyEvent.VK_F2 == code)
+				key = maze.F2;
+			if (KeyEvent.VK_F3 == code)
+				key = maze.F3;
+			if (KeyEvent.VK_F4 == code)
+				key = maze.F4;
+			if (KeyEvent.VK_F5 == code)
+				key = maze.F5;
+			if (KeyEvent.VK_F6 == code)
+				key = maze.F6;
+			if (KeyEvent.VK_M == code)
+				key = 'm';
+			if (KeyEvent.VK_W == code)
+				key = 'w';
+			if (KeyEvent.VK_C == code)
+				key = 'c';
+			if (KeyEvent.VK_F == code)
+				key = 'f';
+			if (KeyEvent.VK_ESCAPE == code)
+				key = maze.ESCAPE ;
+			if (KeyEvent.VK_UP == code)
+				key = 'k' ;
+			if (KeyEvent.VK_DOWN == code)
+				key = 'j' ;
+			if (KeyEvent.VK_LEFT == code)
+				key = 'h' ;
+			if (KeyEvent.VK_RIGHT == code)
+				key = 'l' ;
+			if (KeyEvent.VK_BACK_SPACE == code)
+				key = maze.BACK_SPACE ;
+			if (KeyEvent.VK_Z == code)
+				key = 'z';
+			if (KeyEvent.VK_X == code)
+				key = 'x';
+			if (KeyEvent.VK_V == code)
+				key = 'v';
+			if (KeyEvent.VK_D == code)
+				key = 'd';
+			if (KeyEvent.VK_E == code)
+				key = 'e';
+			if (KeyEvent.VK_B == code)
+				key = 'b';
+			if (KeyEvent.VK_ENTER == code)
+				key = maze.ENTER ;
+		}
+		
+		//System.out.println("Calling keydown with " + key) ;
+		// possible inputs for key: unicode char value, 0-9, A-Z, Escape, 'k','j','h','l'
+		//If the game is in play, feed the movement input to the robot.
+		//Otherwise, feed all input to the maze
+		if(maze.getState()==Constants.STATE_PLAY && manDriv!=null){
+			if(key=='k' | key=='h' | key=='l' | key=='j'){
+				try {
+					((ManualDriver) manDriv).keyInput(key);
+				} catch (Exception e) {
+				}
+			}else{
+				maze.keyDown(key) ;
+				parent.repaint() ;
+			}
+		}
+		else{
+			maze.keyDown(key) ;
+			parent.repaint() ;
+		}
+	}
+	
+	/**
+	 * Sets the manual driver used to operate a maze robot in manual mode. Needed to feed input to the manual robot
+	 * from the key listener.
+	 * 
+	 * @param mD
+	 */
+	public void setManDriv(RobotDriver mD){
+		manDriv = mD;
+	}
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		// nothing to do
+		
+	}
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// NOTE FOR THIS TYPE OF EVENT IS getKeyCode always 0, so Escape etc is not recognized	
+		// this is why we work with keyPressed
+	}
+
+}

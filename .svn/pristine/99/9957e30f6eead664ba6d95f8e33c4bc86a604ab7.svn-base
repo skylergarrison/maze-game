@@ -1,0 +1,102 @@
+package falstad;
+
+import android.util.Log;
+import falstad.Robot.Direction;
+import falstad.Robot.Turn;
+
+public class WallFollower implements RobotDriver {
+	
+	//initialize fields
+	private int pathLength = 0;
+	Robot baseRob;
+	Distance internalDists;
+	private int width;
+	private int height;
+
+	@Override
+	public void setRobot(Robot r) {
+		
+		//sets the essential robot
+		this.baseRob = r;
+		
+	}
+
+	@Override
+	public void setDimensions(int width, int height) {
+		//provides the info about the maze dimensions
+			this.width = width;
+			this.height = height;
+		
+	}
+
+	@Override
+	public void setDistance(Distance distance) {
+		//sets the distance object passed to the driver's internal distance field
+		this.internalDists = distance;
+		
+	}
+
+	/**
+	 * Drives the robot with a forward and a left sensor, following the wall to its left. Will get stuck if it spawns
+	 * on a wall fragment. If it has a wall to the left and space forward, it moves forward. If it has a wall to the
+	 * left and no space forward, it turns right. If it has no wall to the left, it turns left and moves forward until
+	 * it does.
+	 * 
+	 * @return true if driver successfully reaches the exit, false otherwise
+	 * @throws exception if robot stopped due to some problem, e.g. lack of energy
+	 */
+	@Override
+	public boolean drive2Exit() throws Exception {
+		
+		//while the robot is not out of battery, it will always move with its starting wall to the left
+		//if spawned on a wall fragment not connected to the maze, it will get stuck on that wall and never
+		//reach a solution.
+		//while(!baseRob.isAtGoal() && baseRob.getBatteryLevel()>0){
+		Log.v("WallFollow", "Battery: " + baseRob.getBatteryLevel());
+		
+		//if there is a wall on the left, and space forward, move forward.
+		if(baseRob.distanceToObstacle(Direction.LEFT)==0){
+			//if there is a wall on the left and no space forward, turn right.
+			if(baseRob.distanceToObstacle(Direction.FORWARD)==0){
+				baseRob.rotate(Turn.RIGHT);
+			}else if(baseRob.distanceToObstacle(Direction.FORWARD)>0){
+				baseRob.move(1);
+			}
+		}
+		//if there is no wall on the left, turn left and move forward until there is
+		else if(baseRob.distanceToObstacle(Direction.LEFT)>0){
+			baseRob.rotate(Turn.LEFT);
+			baseRob.move(1);
+		}
+		//}
+		
+		return baseRob.isAtGoal();
+	}
+
+	@Override
+	public float getEnergyConsumption() {
+		//based on the standard energy start for a robot, returns the energy used
+		int returnBattery = 2500 - (int)baseRob.getBatteryLevel();
+		return returnBattery ;
+	}
+
+	@Override
+	public int getPathLength() {
+		//returns the pathlength to the user
+		return pathLength;
+	}
+
+	@Override
+	public void incrementPathLength() {
+		//adds 1 to the pathlength
+		pathLength = pathLength + 1;
+		
+	}
+
+	@Override
+	public void clearPathLength() {
+
+		//sets the pathlength to 0
+		pathLength = 0;
+	}
+}

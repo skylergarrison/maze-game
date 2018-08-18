@@ -1,0 +1,199 @@
+package falstad;
+
+import android.util.Log;
+import falstad.Robot.Direction;
+import falstad.Robot.Turn;
+
+public class Wizard implements RobotDriver{
+	
+	//initialize fields
+	private int pathLength = 0;
+	Robot baseRob;
+	Distance internalDists;
+	private int width;
+	private int height;
+	boolean searchBool;
+
+	@Override
+	public void setRobot(Robot r) {
+		
+		//sets the essential robot
+		this.baseRob = r;
+		
+	}
+
+	@Override
+	public void setDimensions(int width, int height) {
+		//provides the info about the maze dimensions
+			this.width = width;
+			this.height = height;
+		
+	}
+
+	@Override
+	public void setDistance(Distance distance) {
+		//sets the distance object passed to the driver's internal distance field
+		this.internalDists = distance;
+		
+	}
+
+	/**
+	 * Cheats by taking the distance matrix from the constructed maze and follows a path of decreasing distances on
+	 * the distance matrix. organizes its movements relative to this path along the matrix.
+	 * 
+	 * @return true if driver successfully reaches the exit, false otherwise
+	 * @throws exception if robot stopped due to some problem, e.g. lack of energy
+	 */
+	@Override
+	public boolean drive2Exit() throws Exception {
+		
+		while(!baseRob.isAtGoal() && baseRob.hasStopped()!=true){
+			Log.v("Wizard", "Battery: " + baseRob.getBatteryLevel());
+			
+			//get the direction of the robot
+			int[] switchInt = baseRob.getCurrentDirection();
+			//reset the boolean that says if the robot has found an appropriate path with less distance
+			searchBool = false;
+			
+			//go through the structure that transfers robot-relative directions into map-relative directions for
+			//checking if there are walls, and if there are not, if that cell has less distance to the exit.
+			if(switchInt[0]==-1){//facing left
+				if(baseRob.distanceToObstacle(Direction.RIGHT)>0 && searchBool==false){
+					if(this.distanceLess(0, 1)){//up
+						baseRob.rotate(Turn.RIGHT);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.LEFT)>0 && searchBool==false){
+					if(this.distanceLess(0, -1)){//down
+						baseRob.rotate(Turn.LEFT);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.FORWARD)>0 && searchBool==false){
+					if(this.distanceLess(-1, 0)){//left
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.BACKWARD)>0 && searchBool==false){
+					if(this.distanceLess(1, 0)){//right
+						baseRob.rotate(Turn.AROUND);
+						baseRob.move(1);
+					}
+				}
+			}else if(switchInt[0]==1){//facing right
+				if(baseRob.distanceToObstacle(Direction.LEFT)>0 && searchBool==false){
+					if(this.distanceLess(0, 1)){//up
+						baseRob.rotate(Turn.LEFT);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.RIGHT)>0 && searchBool==false){
+					if(this.distanceLess(0, -1)){//down
+						baseRob.rotate(Turn.RIGHT);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.BACKWARD)>0 && searchBool==false){
+					if(this.distanceLess(-1, 0)){//left
+						baseRob.rotate(Turn.AROUND);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.FORWARD)>0 && searchBool==false){
+					if(this.distanceLess(1, 0)){//right
+						baseRob.move(1);
+					}
+				}
+			}else if(switchInt[1]==-1){//facing down
+				if(baseRob.distanceToObstacle(Direction.BACKWARD)>0 && searchBool==false){
+					if(this.distanceLess(0, 1)){//up
+						baseRob.rotate(Turn.AROUND);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.FORWARD)>0 && searchBool==false){
+					if(this.distanceLess(0, -1)){//down
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.RIGHT)>0 && searchBool==false){
+					if(this.distanceLess(-1, 0)){//left
+						baseRob.rotate(Turn.RIGHT);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.LEFT)>0 && searchBool==false){
+					if(this.distanceLess(1, 0)){//right
+						baseRob.rotate(Turn.LEFT);
+						baseRob.move(1);
+					}
+				}
+			}else if(switchInt[1]==1){//facing up
+				if(baseRob.distanceToObstacle(Direction.FORWARD)>0 && searchBool==false){
+					if(this.distanceLess(0, 1)){//up
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.BACKWARD)>0 && searchBool==false){
+					if(this.distanceLess(0, -1)){//down
+						baseRob.rotate(Turn.AROUND);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.LEFT)>0 && searchBool==false){
+					if(this.distanceLess(-1, 0)){//left
+						baseRob.rotate(Turn.LEFT);
+						baseRob.move(1);
+					}
+				}if(baseRob.distanceToObstacle(Direction.RIGHT)>0 && searchBool==false){
+					if(this.distanceLess(1, 0)){//right
+						baseRob.rotate(Turn.RIGHT);
+						baseRob.move(1);
+					}
+				}
+			}
+		}
+
+		//return if the robot is at the goal
+		return baseRob.isAtGoal();
+	}
+
+	@Override
+	public float getEnergyConsumption() {
+		//based on the standard energy start for a robot, returns the energy used
+		int returnBattery = 2500 - (int)baseRob.getBatteryLevel();
+		return returnBattery ;
+	}
+
+	@Override
+	public int getPathLength() {
+		//returns the pathlength to the user
+		return pathLength;
+	}
+
+	@Override
+	public void incrementPathLength() {
+		//adds 1 to the pathlength
+		pathLength = pathLength + 1;
+		
+	}
+
+	@Override
+	public void clearPathLength() {
+
+		//sets the pathlength to 0
+		pathLength = 0;
+	}
+	
+	/**
+	 * Compares the internal distance of the current cell and the target cell indicated by -1, 0, 1 modifiers for
+	 * x and y. Uses global variable searchBool. Returns for the sake of drive2exit's if statements.
+	 * 
+	 * @param xMod
+	 * @param yMod
+	 * @return true if the distance is less than the current cell's distance, false if not
+	 */
+	private boolean distanceLess(int xMod, int yMod){
+		
+		try {
+			if(internalDists.getDistance(baseRob.getCurrentPosition()[0], baseRob.getCurrentPosition()[1]) >
+					internalDists.getDistance(baseRob.getCurrentPosition()[0] + xMod, baseRob.getCurrentPosition()[1] + yMod)){
+				searchBool = true;
+			}
+		} catch (Exception e) {
+			System.out.println("Caught at the compare stage");
+		}
+		
+		return searchBool;
+	}
+}
